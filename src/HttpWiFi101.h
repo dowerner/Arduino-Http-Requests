@@ -1,0 +1,12 @@
+#pragma once
+
+#include <WiFi101.h>
+#include "Http.h"
+
+class HttpWiFi101 : public Http<WiFiClient> {
+public:
+    String getLocalIP() override {
+        IPAddress ip = WiFi.localIP();
+        return String(ip[0]) + String(".") + String(ip[1]) + String(".") + String(ip[2]) + String(".") + String(ip[3]);        
+    }
+};
