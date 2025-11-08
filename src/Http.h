@@ -1,3 +1,14 @@
+/*
+ * Arduino-Http-Requests Library
+ * File: Http.h
+ * 
+ * Copyright (c) 2025 Dominik Werner
+ * https://github.com/dowerner/Arduino-Http-Requests
+ *
+ * This file is part of the Arduino-Http-Requests library and is licensed
+ * under the MIT License. See LICENSE file for details.
+ */
+
 #pragma once
 
 #include "LinkedList.h"
@@ -10,36 +21,93 @@
 #define HTTP_RESPONSE_BUFFER_SIZE 1024
 #define RESPONSE_TIMEOUT_MS 60000
 
-
-template <typename T>
+/**
+ * Base class for all specific HTTP request implementers.
+ */
+template <typename TClient>
 class Http {
 public:
+
+    /**
+     * @brief Sends an HTTP GET request to the specified URL.
+     *
+     * @param url The URL to request.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus get(const char* url, RequestCompletedCallback* onRequestCompleted) {
         return get(String(url), onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP GET request to the specified URL.
+     *
+     * @param url The URL to request.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus get(const String& url, RequestCompletedCallback* onRequestCompleted) {
         return sendRequest(url, onRequestCompleted, "GET");
     }
 
+    /**
+     * @brief Sends an HTTP POST request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be posted.
+     * @param body The body of the POST request as a JSON string.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus post(const char* url, const char* body, RequestCompletedCallback* onRequestCompleted) {
         return post(String(url), String(body), onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP POST request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be posted.
+     * @param body The body of the POST request as a JSON string.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus post(const char* url, const String& body, RequestCompletedCallback* onRequestCompleted) {
         return post(String(url), body, onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP POST request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be posted.
+     * @param body The body of the POST request as a JSON document.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus post(const char* url, const JsonDocument& body, RequestCompletedCallback* onRequestCompleted) {
         return post(String(url), body, onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP POST request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be posted.
+     * @param body The body of the POST request as a JSON document.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus post(const String& url, const JsonDocument& body, RequestCompletedCallback* onRequestCompleted) {
         String serializedBody;
         serializeJson(body, serializedBody);
         return post(url, serializedBody, onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP POST request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be posted.
+     * @param body The body of the POST request as a JSON string.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus post(const String& url, const String& body, RequestCompletedCallback* onRequestCompleted) {
         String commands[] = { 
             String("Content-Type: application/json"),
@@ -50,24 +118,64 @@ public:
         return sendRequest(url, onRequestCompleted, "POST", commands, 4);
     }
 
+    /**
+     * @brief Sends an HTTP PUT request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be put.
+     * @param body The body of the PUT request, as a JSON document.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus put(const char* url, const JsonDocument& body, RequestCompletedCallback* onRequestCompleted) {
         return put(String(url), body, onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP PUT request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be put.
+     * @param body The body of the PUT request, as a JSON document.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus put(const String& url, const JsonDocument& body, RequestCompletedCallback* onRequestCompleted) {
         String serializedBody;
         serializeJson(body, serializedBody);
         return put(url, serializedBody, onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP PUT request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be put.
+     * @param body The body of the PUT request, as a JSON string.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus put(const char* url, const char* body, RequestCompletedCallback* onRequestCompleted) {
         return put(String(url), String(body), onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP PUT request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be put.
+     * @param body The body of the PUT request, as a JSON string.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus put(const char* url, const String& body, RequestCompletedCallback* onRequestCompleted) {
         return put(String(url), body, onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP PUT request with a JSON body to the specified URL.
+     *
+     * @param url The URL to which data will be put.
+     * @param body The body of the PUT request, as a JSON string.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus put(const String& url, const String& body, RequestCompletedCallback* onRequestCompleted) {
         String commands[] = { 
             String("Content-Type: application/json"),
@@ -78,18 +186,48 @@ public:
         return sendRequest(url, onRequestCompleted, "PUT", commands, 4);
     }
 
+    /**
+     * @brief Sends an HTTP DELETE request to the specified URL.
+     *
+     * @param url The URL from which a resource will be deleted.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus del(const char* url, RequestCompletedCallback* onRequestCompleted) {
         return del(String(url), onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP DELETE request to the specified URL.
+     *
+     * @param url The URL from which a resource will be deleted.
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus del(const String& url, RequestCompletedCallback* onRequestCompleted) {
         return sendRequest(url, onRequestCompleted, "DELETE");
     }
 
+    /**
+     * @brief Sends an HTTP POST request with a form string body to the specified URL.
+     *
+     * @param url The URL to which data will be posted.
+     * @param formString The form string to be posted (e.g. username=test&password=mypass1234)
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus postAsForm(const char* url, const char* formString, RequestCompletedCallback* onRequestCompleted) {
         return postAsForm(String(url), formString, onRequestCompleted);
     }
 
+    /**
+     * @brief Sends an HTTP POST request with a form string body to the specified URL.
+     *
+     * @param url The URL to which data will be posted.
+     * @param formString The form string to be posted (e.g. username=test&password=mypass1234)
+     * @param onRequestCompleted Callback function invoked when the response is received.
+     * @return HttpRequstStatus Status indicating the current status of the request.
+     */
     HttpRequstStatus postAsForm(const String& url, const char* formString, RequestCompletedCallback* onRequestCompleted) {
         String formData = String(formString);
         String commands[] = { 
@@ -111,7 +249,7 @@ public:
         unsigned long ts = millis();
 
         for (size_t i = 0; i < requestCount; ++i) {
-            HttpRequest<T>* request = nullptr;
+            HttpRequest<TClient>* request = nullptr;
             if (!pendingRequests->get(i, request) || request == nullptr || !request->client->available()) {
                 // check if response timed out
                 unsigned long requestDurationMs = ts - request->requestStartTS;
@@ -174,13 +312,13 @@ public:
         }
     }
 
-    Http<T>() {
-        pendingRequests = new List<HttpRequest<T>*>();
+    Http<TClient>() {
+        pendingRequests = new List<HttpRequest<TClient>*>();
     }
     
-    ~Http<T>() {
+    ~Http<TClient>() {
         // Clean up all HttpRequest objects
-        HttpRequest<T>* request;
+        HttpRequest<TClient>* request;
         while (pendingRequests->getSize() > 0) {
             if (pendingRequests->get(0, request)) {
                 delete request;  // This will delete the HttpRequest and its client
@@ -191,7 +329,7 @@ public:
     }
     
 private:
-    List<HttpRequest<T>*>* pendingRequests;
+    List<HttpRequest<TClient>*>* pendingRequests;
 
     HttpRequstStatus sendRequest(const String& url, RequestCompletedCallback* onRequestCompleted, const char* method) {
         return sendRequest(url, onRequestCompleted, method, nullptr, 0);
@@ -204,9 +342,9 @@ private:
         }
 
         // Create and add request to the list
-        HttpRequest<T>* request = new HttpRequest<T>();
+        HttpRequest<TClient>* request = new HttpRequest<TClient>();
         request->requestStartTS = millis();
-        request->client = new T();
+        request->client = new TClient();
         request->callback = onRequestCompleted;
         pendingRequests->add(request);
         

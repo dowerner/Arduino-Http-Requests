@@ -1,7 +1,17 @@
+/*
+ * Arduino-Http-Requests Library
+ * File: UrlParsing.h
+ * 
+ * Copyright (c) 2025 Dominik Werner
+ * https://github.com/dowerner/Arduino-Http-Requests
+ *
+ * This file is part of the Arduino-Http-Requests library and is licensed
+ * under the MIT License. See LICENSE file for details.
+ */
+
 #pragma once
 
 #include "Arduino.h"
-// #include "String.h"
 
 struct ParsedUrl {
     String host;

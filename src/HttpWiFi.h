@@ -1,6 +1,6 @@
 /*
  * Arduino-Http-Requests Library
- * File: HttpWiFiNINA.h
+ * File: HttpWiFi.h
  * 
  * Copyright (c) 2025 Dominik Werner
  * https://github.com/dowerner/Arduino-Http-Requests
@@ -11,20 +11,18 @@
 
 #pragma once
 
-#include <WiFiNINA.h>
+#include <WiFi.h>
 #include "Http.h"
 
 /**
- * Used to perform HTTP requests with the following boards:
- *   - Arduino MKR WiFi 1010
- *   - Arduino Uno WiFi Rev2
- *   - Arduino Nano 33 IoT
- *   - Arduino Nano RP2040 Connect
- *   - Any board compatible with the WiFiNINA library
+ * Used to perform HTTP requests with:
+ *   - ESP32 boards
+ *   - ESP8266 boards
+ *   - Any board using the ESP Arduino core's WiFi library
  *
- * This class implements the HTTP client interface using the WiFiNINA driver and WiFiClient.
+ * This class implements the HTTP client interface using the ESP WiFi (WiFi.h) driver and WiFiClient.
  */
-class HttpWiFiNINA : public Http<WiFiClient>{
+class HttpWifi : public Http<WiFiClient> {
 public:
     String getLocalIP() override {
         IPAddress ip = WiFi.localIP();

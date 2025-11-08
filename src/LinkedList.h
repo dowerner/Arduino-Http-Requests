@@ -1,21 +1,32 @@
+/*
+ * Arduino-Http-Requests Library
+ * File: LinkedList.h
+ * 
+ * Copyright (c) 2025 Dominik Werner
+ * https://github.com/dowerner/Arduino-Http-Requests
+ *
+ * This file is part of the Arduino-Http-Requests library and is licensed
+ * under the MIT License. See LICENSE file for details.
+ */
+
 #pragma once
 
-template <typename T>
+template <typename TClient>
 class ListNode {
 public:
-    T value;
+    TClient value;
     ListNode* next;
 
-    ListNode(T val) {
+    ListNode(TClient val) {
         value = val;
         next = nullptr;
     }
 };
 
-template <typename T>
+template <typename TClient>
 class List {
 private:
-    ListNode<T>* head;
+    ListNode<TClient>* head;
     size_t size;
 public:
     List() {
@@ -31,15 +42,15 @@ public:
         return size;
     }
 
-    void add(const T& item) {
+    void add(const TClient& item) {
         ++size;
-        ListNode<T>* newNode = new ListNode<T>(item);
+        ListNode<TClient>* newNode = new ListNode<TClient>(item);
         if (head == nullptr) {
             head = newNode;
             return;
         }
 
-        ListNode<T>* end = head;
+        ListNode<TClient>* end = head;
         while (end->next != nullptr) {
             end = end->next;
         }
@@ -47,10 +58,10 @@ public:
         end->next = newNode;
     }
 
-    bool get(const size_t index, T& item) {
+    bool get(const size_t index, TClient& item) {
         if (head == nullptr || index < 0 || index >= size) return false;
 
-        ListNode<T>* current = head;
+        ListNode<TClient>* current = head;
         for (int i = 0; i < index; ++i) {
             if (current == nullptr) return false;  // Safety check
             current = current->next;
@@ -64,8 +75,8 @@ public:
     bool removeAt(size_t index) {
         if (head == nullptr || index < 0 || index >= size) return false;
 
-        ListNode<T>* previous = nullptr;
-        ListNode<T>* removeNode = head;
+        ListNode<TClient>* previous = nullptr;
+        ListNode<TClient>* removeNode = head;
         
         for (size_t i = 0; i < index; ++i) {
             previous = removeNode;
@@ -88,9 +99,9 @@ public:
         if (head == nullptr) return;
 
         size = 0;
-        ListNode<T>* node = head;
+        ListNode<TClient>* node = head;
         while (node->next != nullptr) {
-            ListNode<T>* temp = node;
+            ListNode<TClient>* temp = node;
             node = node->next;
             delete temp;
         }
