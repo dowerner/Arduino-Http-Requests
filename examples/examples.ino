@@ -17,17 +17,17 @@ void setup() {
     // interact with an API
   http.get("http://192.168.1.152:5000/messages", &listMessages);
 
-  // JsonDocument newMessage;
-  // newMessage["title"] = "My message";
-  // newMessage["text"] = "This is a message from my Arduino!";
-  // http.post("http://192.168.1.152:5000/messages", newMessage, &onMessageCreated);
+  JsonDocument newMessage;
+  newMessage["title"] = "My message";
+  newMessage["text"] = "This is a message from my Arduino!";
+  http.post("http://192.168.1.152:5000/messages", newMessage, &onMessageCreated);
 
-  // JsonDocument update;
-  // update["title"] = "My message (updated)";
-  // update["text"] = "This message was updated.";
-  // http.put("http://192.168.1.152:5000/messages/1", update, &onMessageUpdated);
+  JsonDocument update;
+  update["title"] = "My message (updated)";
+  update["text"] = "This message was updated.";
+  http.put("http://192.168.1.152:5000/messages/1", update, &onMessageUpdated);
 
-  // http.del("http://192.168.1.152:5000/messages/1", &onMessageDeleted);
+  http.del("http://192.168.1.152:5000/messages/1", &onMessageDeleted);
 }
 
 void loop() {
@@ -53,10 +53,6 @@ void listMessages(const HttpResponse& response) {
     String text = message["text"];
     Serial.println(title + String(": ") + text);
   }
-
-  delay(1000);
-
-  http.get("http://192.168.1.152:5000/messages", &listMessages);
 }
 
 void onMessageCreated(const HttpResponse& response) {

@@ -244,6 +244,9 @@ public:
 
     virtual String getLocalIP() = 0;  // Pure virtual function - must be implemented by derived classes
 
+    /**
+     * Call this method within your sketche's loop() function to process all the pending requests.
+     */
     void loop() {
         size_t requestCount = pendingRequests->getSize();
 
@@ -257,6 +260,9 @@ public:
                 // check if response timed out
                 unsigned long requestDurationMs = ts - request->requestStartTS;
                 if (requestDurationMs > RESPONSE_TIMEOUT_MS) {
+                    releaseClient(request->client);
+                    request->client = nullptr;
+
                     if (request->callback != nullptr) {
                         HttpResponse timeoutResponse;
                         timeoutResponse.status = HttpRequstStatus::NoResponse;
@@ -266,7 +272,6 @@ public:
 
                     // Remove and delete the timed out request
                     pendingRequests->removeAt(i);
-                    releaseClient(request->client);
                     delete request;
                     
                     // Don't increment i since the next item is now at the same index
@@ -301,6 +306,8 @@ public:
             // Serial.println(responseText);
             HttpResponse response = HttpResponseParsing::parseResponse(responseText);
             response.status = HttpRequstStatus::Completed;
+            releaseClient(request->client);
+            request->client = nullptr;
 
             if (request->callback != nullptr) {
                 request->callback(response);
@@ -308,7 +315,6 @@ public:
 
             // Remove and delete the completed request
             pendingRequests->removeAt(i);
-            releaseClient(request->client);
             delete request;
             
             // Don't increment i since the next item is now at the same index
@@ -400,15 +406,12 @@ private:
         request->client->println(hostPart.c_str());
         request->client->println("Connection: close");
 
-        // Serial.println("Custom commands\n");
         if (clientCommands != nullptr) {
             for (int16_t i = 0; i < commandCount; ++i) {
                 request->client->println(clientCommands[i].c_str());
-                // Serial.println(clientCommands[i]);
             }
         }
         request->client->println();
-
         return HttpRequstStatus::Sent;
     }
 

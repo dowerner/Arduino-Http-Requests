@@ -11,22 +11,22 @@
 
 #pragma once
 
-template <typename TClient>
+template <typename T>
 class ListNode {
 public:
-    TClient value;
+    T value;
     ListNode* next;
 
-    ListNode(TClient val) {
+    ListNode(T val) {
         value = val;
         next = nullptr;
     }
 };
 
-template <typename TClient>
+template <typename T>
 class List {
 private:
-    ListNode<TClient>* head;
+    ListNode<T>* head;
     size_t size;
 public:
     List() {
@@ -42,15 +42,15 @@ public:
         return size;
     }
 
-    void add(const TClient& item) {
+    void add(const T item) {
         ++size;
-        ListNode<TClient>* newNode = new ListNode<TClient>(item);
+        ListNode<T>* newNode = new ListNode<T>(item);
         if (head == nullptr) {
             head = newNode;
             return;
         }
 
-        ListNode<TClient>* end = head;
+        ListNode<T>* end = head;
         while (end->next != nullptr) {
             end = end->next;
         }
@@ -58,10 +58,10 @@ public:
         end->next = newNode;
     }
 
-    bool get(const size_t index, TClient& item) {
+    bool get(const size_t index, T& item) {
         if (head == nullptr || index < 0 || index >= size) return false;
 
-        ListNode<TClient>* current = head;
+        ListNode<T>* current = head;
         for (int i = 0; i < index; ++i) {
             if (current == nullptr) return false;  // Safety check
             current = current->next;
@@ -75,8 +75,8 @@ public:
     bool removeAt(size_t index) {
         if (head == nullptr || index < 0 || index >= size) return false;
 
-        ListNode<TClient>* previous = nullptr;
-        ListNode<TClient>* removeNode = head;
+        ListNode<T>* previous = nullptr;
+        ListNode<T>* removeNode = head;
         
         for (size_t i = 0; i < index; ++i) {
             previous = removeNode;
@@ -96,14 +96,13 @@ public:
     }
 
     void clear() {
-        if (head == nullptr) return;
-
         size = 0;
-        ListNode<TClient>* node = head;
-        while (node->next != nullptr) {
-            ListNode<TClient>* temp = node;
+        ListNode<T>* node = head;
+        while (node != nullptr) {
+            ListNode<T>* temp = node;
             node = node->next;
             delete temp;
         }
+        head = nullptr;
     }
 };
