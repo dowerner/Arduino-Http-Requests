@@ -23,8 +23,6 @@ struct HttpRequest {
     HttpRequest() : client(nullptr), callback(nullptr) {}
     
     ~HttpRequest() {
-        if (client != nullptr) {
-            delete client;
-        }
+        client = nullptr;
     }
 };

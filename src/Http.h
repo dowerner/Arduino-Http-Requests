@@ -21,6 +21,9 @@
 #define HTTP_RESPONSE_BUFFER_SIZE 1024
 #define RESPONSE_TIMEOUT_MS 60000
 
+// Max client instances for socket-limited boards like WiFiNINA, W5100
+#define DEFAULT_MAX_CLIENTS 4
+
 /**
  * Base class for all specific HTTP request implementers.
  */
@@ -241,6 +244,9 @@ public:
 
     virtual String getLocalIP() = 0;  // Pure virtual function - must be implemented by derived classes
 
+    /**
+     * Call this method within your sketche's loop() function to process all the pending requests.
+     */
     void loop() {
         size_t requestCount = pendingRequests->getSize();
 
@@ -254,6 +260,9 @@ public:
                 // check if response timed out
                 unsigned long requestDurationMs = ts - request->requestStartTS;
                 if (requestDurationMs > RESPONSE_TIMEOUT_MS) {
+                    releaseClient(request->client);
+                    request->client = nullptr;
+
                     if (request->callback != nullptr) {
                         HttpResponse timeoutResponse;
                         timeoutResponse.status = HttpRequstStatus::NoResponse;
@@ -297,6 +306,8 @@ public:
             // Serial.println(responseText);
             HttpResponse response = HttpResponseParsing::parseResponse(responseText);
             response.status = HttpRequstStatus::Completed;
+            releaseClient(request->client);
+            request->client = nullptr;
 
             if (request->callback != nullptr) {
                 request->callback(response);
@@ -312,24 +323,54 @@ public:
         }
     }
 
-    Http<TClient>() {
+    Http<TClient>(int maxClients = DEFAULT_MAX_CLIENTS) {
         pendingRequests = new List<HttpRequest<TClient>*>();
+        clientPool = new List<TClient*>();
+        this->maxClients = maxClients;
+
+        for (int i = 0; i < maxClients; ++i) {
+            clientPool->add(new TClient());
+        }        
     }
     
     ~Http<TClient>() {
-        // Clean up all HttpRequest objects
+        // cleanup all pending requests
         HttpRequest<TClient>* request;
         while (pendingRequests->getSize() > 0) {
             if (pendingRequests->get(0, request)) {
-                delete request;  // This will delete the HttpRequest and its client
+                releaseClient(request->client);
+                delete request;
                 pendingRequests->removeAt(0);
             }
         }
+
+        // cleanup client pool
+        for (size_t i = 0; i < clientPool->getSize(); ++i) {
+            TClient* client;
+            if (clientPool->get(i, client) && client) delete client;
+        }
         delete pendingRequests;
+        delete clientPool;
     }
     
 private:
     List<HttpRequest<TClient>*>* pendingRequests;
+    List<TClient*>* clientPool;
+    int maxClients;
+
+    TClient* acquireClient() {
+        if (clientPool->getSize() == 0) return nullptr;
+        TClient* client;
+        clientPool->get(0, client);
+        clientPool->removeAt(0);
+        return client;
+    }
+
+    void releaseClient(TClient* client) {
+        if (!client) return;
+        client->stop();
+        clientPool->add(client);
+    }
 
     HttpRequstStatus sendRequest(const String& url, RequestCompletedCallback* onRequestCompleted, const char* method) {
         return sendRequest(url, onRequestCompleted, method, nullptr, 0);
@@ -341,14 +382,20 @@ private:
             return HttpRequstStatus::Failed_InvalidUrl;
         }
 
+        TClient* client = acquireClient();
+        if (!client) {
+            return HttpRequstStatus::Failed_TooManyConcurrentRequests;
+        }
+
         // Create and add request to the list
         HttpRequest<TClient>* request = new HttpRequest<TClient>();
         request->requestStartTS = millis();
-        request->client = new TClient();
+        request->client = client;
         request->callback = onRequestCompleted;
         pendingRequests->add(request);
         
         if (!request->client->connect(parsedUrl.host.c_str(), parsedUrl.port)) {
+            releaseClient(client);
             return HttpRequstStatus::Failed_UnableToConnectToServer;
         }
 
@@ -359,15 +406,12 @@ private:
         request->client->println(hostPart.c_str());
         request->client->println("Connection: close");
 
-        // Serial.println("Custom commands\n");
         if (clientCommands != nullptr) {
             for (int16_t i = 0; i < commandCount; ++i) {
                 request->client->println(clientCommands[i].c_str());
-                // Serial.println(clientCommands[i]);
             }
         }
         request->client->println();
-
         return HttpRequstStatus::Sent;
     }
 

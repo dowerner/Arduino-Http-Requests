@@ -8,6 +8,7 @@ char pass[] = SECRET_PASS;
 
 HttpWiFiNINA http;
 
+int socketCount = 0;
 
 void setup() {
     Serial.begin(115200);
@@ -36,6 +37,7 @@ void loop() {
 
 void listMessages(const HttpResponse& response) {
   printResponseStatus(response);
+  Serial.println(String("Socket: ") + String(++socketCount));
 
   // print response content as text
   Serial.println(response.contentText);
