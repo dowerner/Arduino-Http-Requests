@@ -20,7 +20,8 @@ enum HttpRequstStatus {
     NoResponse = 3,
     Failed_UnableToConnectToServer = 30,
     Failed_InvalidUrl = 31,
-    Failed_UnableToSerializeBody = 32
+    Failed_UnableToSerializeBody = 32,
+    Failed_TooManyConcurrentRequests = 33
 };
 
 struct HttpResponse {
