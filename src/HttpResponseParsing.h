@@ -30,6 +30,7 @@ class HttpResponseParsing {
                     line.concat(c);
                     continue;
                 }
+                line.trim();
 
                 if (line.startsWith("HTTP/")) {
                     result.responseCode = parseResponseCode(line);
@@ -43,6 +44,12 @@ class HttpResponseParsing {
                 else if (line.startsWith("Server")) {
                     result.server = getStringAfterColon(line);
                 }
+                else if (line.length() == 0 && result.contentLength == 0) {
+                    // detect empty line (start of response body) and generate content length from what is left of the response
+                    result.contentLength = responseLenght - i - 1;
+                    break;
+                }
+
                 line = String();
             }
 
