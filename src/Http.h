@@ -32,6 +32,21 @@ class Http {
 public:
 
     /**
+     * @brief Sets request timeout.
+     */
+    void setTimeoutMs(int timeoutMs) {
+        if (timeoutMs < 0) return;
+        requestTimeoutMs = timeoutMs;
+    }
+
+    /**
+     * @brief Gets the configured request timeout.
+     */
+    int getTimeoutMs() {
+        return requestTimeoutMs;
+    }
+
+    /**
      * @brief Sends an HTTP GET request to the specified URL.
      *
      * @param url The URL to request.
@@ -259,7 +274,7 @@ public:
             if (!pendingRequests->get(i, request) || request == nullptr || !request->client->available()) {
                 // check if response timed out
                 unsigned long requestDurationMs = ts - request->requestStartTS;
-                if (requestDurationMs > RESPONSE_TIMEOUT_MS) {
+                if (requestDurationMs > requestTimeoutMs) {
                     releaseClient(request->client);
                     request->client = nullptr;
 
@@ -326,6 +341,7 @@ public:
     Http<TClient>(int maxClients = DEFAULT_MAX_CLIENTS) {
         pendingRequests = new List<HttpRequest<TClient>*>();
         clientPool = new List<TClient*>();
+        requestTimeoutMs = RESPONSE_TIMEOUT_MS;
         this->maxClients = maxClients;
 
         for (int i = 0; i < maxClients; ++i) {
@@ -357,6 +373,7 @@ private:
     List<HttpRequest<TClient>*>* pendingRequests;
     List<TClient*>* clientPool;
     int maxClients;
+    int requestTimeoutMs;
 
     TClient* acquireClient() {
         if (clientPool->getSize() == 0) return nullptr;
